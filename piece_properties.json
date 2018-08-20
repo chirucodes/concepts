@@ -1,0 +1,11 @@
+{
+  "queen":{
+    "steps":["Xm", "Xn", "Xo", "Xp", "Xq", "Xr", "Xs", "Xt"]
+  },
+  "rook":{
+    "steps":["Xm","Xn","Xo","Xp"]
+  },
+  "knight":{
+    "steps":["2m-1o", "2m-1p", "2n-1o", "2n-1p", "2o-1m", "2o-1n", "2p-1m", "2p-1n"]
+  }
+}
