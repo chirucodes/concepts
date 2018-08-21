@@ -67,6 +67,7 @@ n<--------PIECE-------->m
 And the steps are defined below.
 
 **Unidirectional directions:** Rook, Queen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -Added an integer/X before the direction character to define the position number the piece should get moved to.
 -Examples are mentioned below.
 **Unidirectional:**
@@ -83,8 +84,10 @@ And the steps are defined below.
 -**For eg:** if the current position of the rook is f1, and the step is Xm then the posible positions are a1, b1, c1, d1, e1
 
 The same repeats for directions o,p,q,r,s and t
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -**Bilateral directions:** Knight
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -2m-1o => 2m -> 2nd step towards right from the current position and 1o ->  1 step towards forward from the temp position.
 -2m-1p => 2m -> 2nd step towards right from the current position and 1p ->  1 step towards Backward from the temp position.
 -2n-1o => 2n -> 2nd step towards left from the current position and 1o ->  1 step towards forward from the temp position.
@@ -93,6 +96,7 @@ The same repeats for directions o,p,q,r,s and t
 -2o-1n => 2o -> 2nd step towards forward from the current position and 1n ->  1 step towards left from the temp position.
 -2p-1m => 2p -> 2nd step towards Backward from the current position and 1m ->  1 step towards right from the temp position.
 -2p-1n => 2p -> 2nd step towards Backward from the current position and 1n ->  1 step towards left from the temp position.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -------------------------------------------------------
 -python2.7 has been installed on the running machine and the python modules have been installed already.
