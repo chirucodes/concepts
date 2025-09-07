@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <title>Betterlife Service Organization - Receipt Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans Telugu', sans-serif; display: flex; gap: 20px; padding: 20px; }
+    .inputs { width: 35%; }
+    .output { width: 65%; border: 3px solid #ff9800; border-radius: 12px; padding: 20px; background: #fff8e1; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .header { text-align: center; font-size: 26px; font-weight: bold; color: #d32f2f; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .header img { width: 50px; height: 50px; }
+    .sub-header { text-align: center; font-size: 16px; color: #333; margin-bottom: 20px; }
+    .footer { font-size: 14px; color: #444; margin-top: 20px; border-top: 2px solid #ccc; padding-top: 10px; text-align: center; line-height: 1.6; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, textarea, select { width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: 1px solid #ccc; }
+    canvas { width: 100%; border-radius: 10px; margin-top: 15px; border: 3px solid #ff5722; }
+    button { margin-top: 10px; padding: 8px 14px; border: none; border-radius: 6px; background: #388e3c; color: #fff; cursor: pointer; }
+    button:hover { background: #2e7d32; }
+  </style>
+</head>
+<body>
+  <div class="inputs">
+    <h2>Input Section</h2>
+    <label>Upload Photo: <input type="file" id="photoInput"></label>
+    <label>Received From: <input type="text" id="nameInput" placeholder="Enter name"></label>
+    <label>S/O: <input type="text" id="soInput" placeholder="Enter s/o name"></label>
+    <label>Living Place: <input type="text" id="placeInput" placeholder="Enter residential place"></label>
+    <label>Invoice No: <input type="text" id="invoiceInput" placeholder="Enter invoice number"></label>
+    <label>Received Date: <input type="date" id="dateInput"></label>
+    <label>Reason for Social Service Contribution: 
+      <select id="purposeTemplate">
+        <option value="birthday_self">🎂 జన్మదిన వేడుక</option>
+        <option value="birthday_other">🎉 ఇతరుల పుట్టినరోజు</option>
+        <option value="birthday_son">👦 కుమారుడి పుట్టినరోజు</option>
+        <option value="birthday_daughter">👧 కుమార్తె పుట్టినరోజు</option>
+        <option value="anniversary">💍 వివాహ వార్షికోత్సవం</option>
+        <option value="memorial">🙏 స్మరణార్థం</option>
+        <option value="custom">✍ కస్టమ్</option>
+      </select>
+    </label>
+    <label>Special Message: <textarea id="descInput"></textarea></label>
+    <button onclick="generateOutput()">Generate</button>
+    <button onclick="downloadImage()">Download Receipt</button>
+  </div>
+
+  <div class="output">
+    <canvas id="canvas" width="800" height="700"></canvas>
+  </div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const photoInput = document.getElementById('photoInput');
+  let photo = null;
+  let logo = new Image();
+  logo.crossOrigin = "anonymous"; // ✅ allow cross-origin use
+  logo.src = "https://raw.githubusercontent.com/chirucodes/concepts/master/blso_logo.png";
+  photoInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = evt => {
+        photo = new Image();
+        photo.onload = generateOutput;
+        photo.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+function wrapText(context, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = context.measureText(testLine);
+    if (metrics.width > maxWidth && n > 0) {
+      context.fillText(line, x, y);
+      line = words[n] + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  context.fillText(line, x, y);
+  return y + lineHeight;
+}
+
+function generateOutput() {
+  const name = document.getElementById('nameInput').value;
+  const soName = document.getElementById('soInput').value;
+  const livingPlace = document.getElementById('placeInput').value;
+  const invoice = document.getElementById('invoiceInput').value || "N/A";
+  const purposeTemplate = document.getElementById('purposeTemplate').value;
+  const desc = document.getElementById('descInput').value;
+  const dateInput = document.getElementById('dateInput').value;
+  const today = dateInput ? new Date(dateInput).toLocaleDateString('te-IN') : '';
+
+  // Clear canvas
+  ctx.fillStyle = "#fff8e1";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Logo
+  if (logo.complete) {
+    ctx.drawImage(logo, 30, 10, 50, 50);
+  } else {
+    logo.onload = () => ctx.drawImage(logo, 30, 10, 50, 50);
+  }
+
+  // Header
+  ctx.fillStyle = "#d32f2f";
+  ctx.font = "26px Noto Sans Telugu";
+  ctx.textAlign = "center";
+  ctx.fillText("Betterlife Service Organization", canvas.width / 2, 40);
+
+  // Sub-header
+  ctx.font = "16px Noto Sans Telugu";
+  ctx.fillStyle = "#333";
+  ctx.fillText("Phone: 9 52 54 54 54 9 | Reg. No: 575/2021", canvas.width / 2, 70);
+
+  // Left content frame
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(50, 100, 420, 450);
+
+  // Watermark left frame
+  ctx.globalAlpha = 0.1;
+  ctx.font = "48px Noto Sans Telugu";
+  ctx.fillStyle = "#000";
+  ctx.textAlign = "center";
+  ctx.fillText("Betterlife Service Organization", 50 + 420 / 2, 100 + 450 / 2);
+  ctx.globalAlpha = 1;
+
+  // Content text
+  let y = 130;
+  ctx.font = "20px Noto Sans Telugu";
+  ctx.fillStyle = "#111827";
+  ctx.textAlign = "left";
+  const contentX = 60;
+  const contentWidth = 400;
+
+  y = wrapText(ctx, "📌 ఈ సేవకు తమ వంతు సహకరించిన వారు: " + name, contentX, y, contentWidth, 28);
+  y = wrapText(ctx, "👨‍👦 S/O: " + soName, contentX, y, contentWidth, 28);
+  y = wrapText(ctx, "🏠 నివాసం: " + livingPlace, contentX, y, contentWidth, 28);
+
+  ctx.fillText("📅 తేది: " + today, contentX, y); y += 40;
+  ctx.fillText("🧾 రశీదు నం: " + invoice, contentX, y); y += 40;
+
+  let reason = "";
+  if (purposeTemplate === "birthday_self") reason = "🎂 జన్మదిన వేడుక";
+  else if (purposeTemplate === "birthday_other") reason = "🎉 పుట్టినరోజు";
+  else if (purposeTemplate === "birthday_son") reason = "👦 కుమారుడి పుట్టినరోజు";
+  else if (purposeTemplate === "birthday_daughter") reason = "👧 కుమార్తె పుట్టినరోజు";
+  else if (purposeTemplate === "anniversary") reason = "💍 వివాహ వార్షికోత్సవం";
+  else if (purposeTemplate === "memorial") reason = "🙏 స్మరణార్థం";
+  else reason = "✍ ప్రత్యేక సందర్భం";
+
+  ctx.fillText("✨ సేవా సందర్భం: " + reason, contentX, y); y += 40;
+  ctx.fillStyle = "#2e7d32";
+  wrapText(ctx, "🌼 మా Betterlife Service Organization బృందం నుండి హృదయపూర్వక సందేశం: " + desc, contentX, y, contentWidth, 28);
+
+  // Right photo + details
+  if (photo) {
+    const aspect = photo.width / photo.height;
+    const targetW = 200, targetH = 250;
+    let drawW = targetW, drawH = targetW / aspect;
+    if (drawH < targetH) { drawH = targetH; drawW = targetH * aspect; }
+    const imgX = 500;
+    const imgY = 100;
+    ctx.drawImage(photo, imgX, imgY, drawW, drawH);
+
+    // Watermark on image
+    ctx.globalAlpha = 0.1;
+    ctx.font = "36px Noto Sans Telugu";
+    ctx.fillText("Betterlife Service Organization", imgX + drawW / 2, imgY + drawH / 2);
+    ctx.globalAlpha = 1;
+
+    ctx.strokeStyle = "#ff5722";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(imgX, imgY, drawW, drawH);
+
+    // S/O & Place under photo (right frame)
+    ctx.font = "18px Noto Sans Telugu";
+    ctx.fillStyle = "#111827";
+    ctx.textAlign = "center";
+    const textYStart = imgY + drawH + 30;
+  }
+
+  // Footer
+  ctx.font = "14px Noto Sans Telugu";
+  ctx.fillStyle = "#444";
+  ctx.textAlign = "center";
+  const footerText = "Better Life Service Organization కష్టాల్లో ఉన్న వ్యక్తుల జీవితాల్లో వెలుగుని పంచుతుంది.\n" +
+"మీ ప్రత్యేక సమయంలో మీరు చేసిన సహాయం వారి జీవితంలో ఎంతో ఆశ, భరోసా కలిగిస్తుంది. 🙏\n\n" +
+
+"💳 బ్యాంక్: HDFC Bank Ltd., Malkipuram Branch  🏦 ఖాతా నం: 502 000 7117 2399 | IFSC: HDFC0009171  \n" + 
+"📲 PhonePe/GPay: 9 52 54 54 54 9  📧 Eamil: betterlifeserviceorganiation@gail.com  \n\n\n" + 
+
+"🤝 అవసరమున్నవారికి కలసి సహాయం చేద్దాం 🤝";
+  const footerLines = footerText.split('\n');
+  footerLines.forEach((line, i) => {
+    ctx.fillText(line, canvas.width / 2, 580 + i * 20);
+  });
+}
+function downloadImage() {
+  try {
+    const link = document.createElement('a');
+    link.download = 'receipt.png';
+    link.href = canvas.toDataURL("image/png");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (err) {
+    alert("⚠️ Unable to download. Please check logo/photo CORS settings.");
+    console.error(err);
+  }
+}
+
+</script>
+</body>
+</html>
